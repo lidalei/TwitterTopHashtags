@@ -65,8 +65,6 @@ public class Top3App {
         // build topology
         TopologyBuilder topologyBuilder = new TopologyBuilder();
 
-        // TODO, delete after finishing development
-//        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
 
         topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
         topologyBuilder.setBolt("Top3Bolt", new TwitterTop3Bolt(langTokenDict)).localOrShuffleGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME);

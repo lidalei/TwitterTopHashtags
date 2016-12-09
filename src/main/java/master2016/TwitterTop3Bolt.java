@@ -39,10 +39,6 @@ public class TwitterTop3Bolt extends BaseRichBolt {
         String language = tuple.getStringByField(KafkaSpout.LANGUAGE_NAME);
         String hashtag = tuple.getStringByField(KafkaSpout.HASHTAG_NAME);
 
-        // TODO, delete after finishing development
-        if(hashtag == null) {
-            System.out.println("I can deal with null yes!");
-        }
 
         System.out.println("language " + language);
         System.out.println("hashtag " + hashtag);
