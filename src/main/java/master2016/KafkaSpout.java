@@ -25,6 +25,9 @@ public class KafkaSpout extends BaseRichSpout {
     public final static String HASHTAG_NAME = "hashtag";
     public final static String TWITTER_STREAM_NAME = "twitter";
 
+    // test the code, TODO, delete after finishing development
+    private boolean testMode = false;
+
     private SpoutOutputCollector collector = null;
 
     KafkaConsumer<String, String> consumer = null;
@@ -37,6 +40,13 @@ public class KafkaSpout extends BaseRichSpout {
     public KafkaSpout(String kafkaBrokerList, String groupID) {
         this.kafkaBrokerList = kafkaBrokerList;
         this.groupID = groupID;
+    }
+
+    // TODO, delete after finishing development
+    public KafkaSpout(String kafkaBrokerList, String groupID, boolean testMode) {
+        this.kafkaBrokerList = kafkaBrokerList;
+        this.groupID = groupID;
+        this.testMode = testMode;
     }
 
     @Override
@@ -55,18 +65,40 @@ public class KafkaSpout extends BaseRichSpout {
     }
 
     private Values parseLangHashtag(String langHashtag) {
-        // TODO, multiple hashtags
-
         String[] langHashtagList = langHashtag.split(",");
-        String language = langHashtagList[0].split(":")[1];
-        String hashtag = langHashtagList[1].split(":")[1];
+        String[] languagePair = langHashtagList[0].split(":");
+
+        // when language is empty, set it as "null"
+        String language = null;
+        if(languagePair.length >= 2) {
+            language = languagePair[1];
+        }
+        else {
+            language = "null";
+        }
+
+        // TODO, multiple hashtags
+        String[] hashtagPair = langHashtagList[1].split(":");
+
+        // when hashtag is empty, set it as null
+        String hashtag = null;
+        if(hashtagPair.length >= 2) {
+            hashtag = hashtagPair[1];
+        }
 
         return new Values(language, hashtag);
-
     }
 
     @Override
     public void nextTuple() {
+
+        // TODO, delete after finishing development
+        if(testMode) {
+            collector.emit(TWITTER_STREAM_NAME, new Values("1", null));
+            collector.emit(TWITTER_STREAM_NAME, new Values("2", null));
+            return;
+        }
+
         ConsumerRecords<String, String> records = consumer.poll(100);
         for (ConsumerRecord<String, String> record : records) {
 //            System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());

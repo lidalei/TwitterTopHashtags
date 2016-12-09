@@ -13,18 +13,20 @@ import java.util.HashMap;
 public class Top3App {
 
     public static void main(String[] args) {
+
         /*
         if(args.length < 4) {
             System.out.println("Not enough parameters. There should be four parameters.");
             return;
         }
 
+
         System.out.println("Parameters:");
 
         // parse langList
         String langTokenListStr = args[0];
         String[] langTokenList = langTokenListStr.split(",");
-        HashMap<String, String> langTokenDict = new HashMap<>(langTokenList.length);
+        HashMap<String, String> langTokenDict = new HashMap<>(langTokenList.length * 2);
         for(String e : langTokenList) {
             String[] langToken = e.split(":");
             langTokenDict.put(langToken[0], langToken[1]);
@@ -48,13 +50,26 @@ public class Top3App {
         System.out.println("Output folder: " + outputFolder);
         */
 
+
+        // for debug use only. // TODO, change to previous piece of code
+        HashMap<String, String> langTokenDict = new HashMap<>(4);
+        langTokenDict.put("en", "machine learning");
+        langTokenDict.put("es", "madrid");
+
         String kafkaBrokerURL = "localhost:9092";
         String topologyName = "Topology";
 
+
+        final String groupID = "YesWeCan";
+
         // build topology
         TopologyBuilder topologyBuilder = new TopologyBuilder();
-        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, "YesWeCan"));
-        topologyBuilder.setBolt("Top3Bolt", new TwitterTop3Bolt()).localOrShuffleGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME);
+
+        // TODO, delete after finishing development
+//        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
+
+        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
+        topologyBuilder.setBolt("Top3Bolt", new TwitterTop3Bolt(langTokenDict)).localOrShuffleGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME);
 
         // local model
         LocalCluster locClu = new LocalCluster();

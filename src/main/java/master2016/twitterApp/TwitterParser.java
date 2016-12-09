@@ -24,11 +24,13 @@ public class TwitterParser {
             String hashTag = ",hashtag";
             if(hashTagArr.size() >= 1) {
                 for(JsonElement e : hashTagArr) {
-                    hashTag += ":" + e.getAsJsonObject().get("text").getAsString();
+                    // transform hashtag to lower case format
+                    hashTag += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
                 }
             }
             else {
-                hashTag += ":null";
+                // empty instead of null, for sometimes there is hashtag null
+                hashTag += ":";
             }
 
             return  language + hashTag;
@@ -38,7 +40,8 @@ public class TwitterParser {
             e.printStackTrace();
         }
 
-        return "lang:null,hashtag:null";
+        // empty instead of null when no language or hashtag is defined, for sometimes there is hashtag null
+        return "lang:,hashtag:";
     }
 
 }

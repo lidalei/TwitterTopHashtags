@@ -5,6 +5,7 @@
 
 package master2016.twitterApp;
 
+
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -36,7 +37,7 @@ public class StartTwitterApp {
 
 
         if(twitterAPIParams.get("mode").equals("1")) { // read from file
-
+            // each line is a twitter
             // TODO
         }
         else { // get twitters from twitter
@@ -73,7 +74,7 @@ public class StartTwitterApp {
 
             TwitterParser twitterParser = new TwitterParser();
 
-            // send twitter to kafka
+            // send twitter to kafka, TODO, change 100000 to infinity
             for (int i = 0; i < 100000; ++i) {
                 ProducerRecord<String, String> twitter = null;
                 try {
@@ -98,18 +99,21 @@ public class StartTwitterApp {
 
 
     public static void main(String[] args) {
+
+        String parameterNames = "mode, apiKey, apiSecret, tokenValue, tokenSecret, Kafka Broker URL, Filename";
+
         if(args.length < 7) {
-            System.out.println("Not enough parameters. There should be seven parameters.");
+            System.out.println("Not enough parameters. There should be seven parameters: " + parameterNames + ".");
             return;
         }
 
         System.out.println("Parameters:");
-        HashMap<String, String> twitterAPIParams = new HashMap<>();
+        HashMap<String, String> twitterAPIParams = new HashMap<>(14);
 
         // parse mode, 1 means reading from file, 2 from Twitter API
         int mode = Integer.valueOf(args[0]);
         if(mode != 1 && mode != 2) {
-            System.out.println("Incorrect first parameter: mode. Please try agin!");
+            System.out.println("Incorrect first parameter: mode. Please try again!");
             return;
         }
 
@@ -132,7 +136,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("APISecret", APISecret);
-        System.out.println("Secret key: " + APISecret);
+        System.out.println("Twitter API Secret key: " + APISecret);
 
         // parse access token associated with the Twitter app
         String tokenValue = args[3];

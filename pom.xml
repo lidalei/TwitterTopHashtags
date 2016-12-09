@@ -40,9 +40,9 @@
         </dependency>
     </dependencies>
 
-    <!--add appassembler according to the slides -->
     <build>
         <plugins>
+            <!--add appassembler according to the slides -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
@@ -75,6 +75,23 @@
                             </jvmSettings>
                         </program>
                     </programs>
+                </configuration>
+            </plugin>
+            <!--To package all dependencies.-->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
         </plugins>
