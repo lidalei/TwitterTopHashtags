@@ -13,6 +13,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 
@@ -21,8 +22,11 @@ import java.util.Properties;
  */
 public class KafkaSpout extends BaseRichSpout {
 
+    // test the code, TODO, delete after finishing development
+    private boolean testMode = false;
+
     public final static String LANGUAGE_NAME = "lang";
-    public final static String HASHTAG_NAME = "hashtag";
+    public final static String HASHTAGS_NAME = "hashtag";
     public final static String TWITTER_STREAM_NAME = "twitter";
 
     private SpoutOutputCollector collector = null;
@@ -37,6 +41,13 @@ public class KafkaSpout extends BaseRichSpout {
     public KafkaSpout(String kafkaBrokerList, String groupID) {
         this.kafkaBrokerList = kafkaBrokerList;
         this.groupID = groupID;
+    }
+
+    // TODO, delete after finishing development
+    public KafkaSpout(String kafkaBrokerList, String groupID, boolean testMode) {
+        this.kafkaBrokerList = kafkaBrokerList;
+        this.groupID = groupID;
+        this.testMode = testMode;
     }
 
     @Override
@@ -67,20 +78,87 @@ public class KafkaSpout extends BaseRichSpout {
             language = "null";
         }
 
-        // TODO, multiple hashtags
-        String[] hashtagPair = langHashtagList[1].split(":");
+        // multiple hashtags, return all hashtags split by :
+        String hashtagsPair = langHashtagList[1];
 
-        // when hashtag is empty, set it as null
-        String hashtag = null;
-        if(hashtagPair.length >= 2) {
-            hashtag = hashtagPair[1];
+        // when hashtags are empty, set it as null
+        String hashtags = null;
+
+        int firstOccuIndex = hashtagsPair.indexOf(":");
+        // hashtags are not empty
+        if(firstOccuIndex != hashtagsPair.length() - 1) {
+            hashtags = hashtagsPair.substring(firstOccuIndex + 1);
         }
 
-        return new Values(language, hashtag);
+        return new Values(language, hashtags);
     }
 
     @Override
     public void nextTuple() {
+
+        // TODO, delete after finishing development
+         if(testMode) {
+
+             // start es hashtag
+             Values val = parseLangHashtag("lang:en,hashtags:machine learning");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:machine learning");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:abc");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:is");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:a dog");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:hahaha");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // end es hashtag
+             val = parseLangHashtag("lang:en,hashtags:machine learning");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // start es hashtag
+             val = parseLangHashtag("lang:es,hashtags:madrid");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:is");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:a");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:beautiful");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:city");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // end es hashtag
+             val = parseLangHashtag("lang:es,hashtags:madrid");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             return;
+         }
+
+
         ConsumerRecords<String, String> records = consumer.poll(100);
         for (ConsumerRecord<String, String> record : records) {
 //            System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
@@ -95,6 +173,6 @@ public class KafkaSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(TWITTER_STREAM_NAME, new Fields(LANGUAGE_NAME, HASHTAG_NAME));
+        outputFieldsDeclarer.declareStream(TWITTER_STREAM_NAME, new Fields(LANGUAGE_NAME, HASHTAGS_NAME));
     }
 }
