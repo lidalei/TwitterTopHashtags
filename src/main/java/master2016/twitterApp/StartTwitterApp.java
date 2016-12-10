@@ -6,6 +6,7 @@
 package master2016.twitterApp;
 
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -29,12 +30,39 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class StartTwitterApp {
 
+    // TODO, change after finishing development
+    private Writer writer = null;
+
     public final static String TOPIC_NAME = "DataManagement";
+
+    // TODO, change after finishing development
+    public StartTwitterApp() {
+        try{
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Sophie/langhashtags.txt"), "utf-8"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private void getTweetsAndStoreToKafka(HashMap<String, String> twitterAPIParams) {
 
-        System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
+        // Producer properties
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, twitterAPIParams.get("kafkaBrokerURL"));
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
+        Producer<String, String> producer = new KafkaProducer<>(props);
+
+        System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
 
         if(twitterAPIParams.get("mode").equals("1")) { // read from file
             // each line is a twitter
@@ -43,19 +71,6 @@ public class StartTwitterApp {
         else { // get twitters from twitter
 
             BlockingQueue<String> twitterQueue = new LinkedBlockingQueue<>();
-
-            // Producer properties
-            Properties props = new Properties();
-            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, twitterAPIParams.get("kafkaBrokerURL"));
-            props.put(ProducerConfig.ACKS_CONFIG, "all");
-            props.put(ProducerConfig.RETRIES_CONFIG, 0);
-            props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-            props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
-            props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-
-            Producer<String, String> producer = new KafkaProducer<>(props);
 
             // connect to twitter
             StatusesSampleEndpoint endpoint = new StatusesSampleEndpoint();
@@ -74,11 +89,23 @@ public class StartTwitterApp {
 
             TwitterParser twitterParser = new TwitterParser();
 
-            // send twitter to kafka, TODO, change 100000 to infinity
-            for (int i = 0; i < 100000; ++i) {
+            // send twitter to kafka, TODO, change 10000 to infinity
+            for (int i = 0; i < 10000; ++i) {
                 ProducerRecord<String, String> twitter = null;
                 try {
                     String languageHashTag = twitterParser.parse(twitterQueue.take());
+
+                    // this twitter was deleted
+                    if(languageHashTag == null) {
+                        continue;
+                    }
+
+                    // TODO, change after finishing development
+                    try{
+                        writer.write(languageHashTag);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                     twitter = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
                     System.out.println(twitter);
@@ -108,6 +135,7 @@ public class StartTwitterApp {
         }
 
         System.out.println("Parameters:");
+
         HashMap<String, String> twitterAPIParams = new HashMap<>(14);
 
         // parse mode, 1 means reading from file, 2 from Twitter API

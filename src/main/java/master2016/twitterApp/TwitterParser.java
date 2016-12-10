@@ -1,23 +1,47 @@
 package master2016.twitterApp;
 
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+
+import java.io.*;
 
 /**
  * Created by Sophie on 11/18/16.
  */
 public class TwitterParser {
 
+    // TODO, change after finishing development
+    private Writer writer = null;
+
+    // TODO, change after finishing development
+    public TwitterParser() {
+        try{
+            writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("/Users/Sophie/sampleTwitters.txt"), "utf-8"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public String parse(String jsonString) {
         try{
+
+            // TODO, change after finishing development
+            writer.write(jsonString);
 //            System.out.println(jsonString);
 
             JsonElement jsonElement = new JsonParser().parse(jsonString);
 
             JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+            // the twitter was deleted if there is no language element, TODO
+//            System.out.println(jsonObject.get("lang"));
+            if(jsonObject.get("lang") == null) {
+                return null;
+            }
+
             String language = "lang:" + jsonObject.get("lang").getAsString();
             JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
 
@@ -29,7 +53,7 @@ public class TwitterParser {
                 }
             }
             else {
-                // empty instead of null, for sometimes there is hashtag null
+                // empty instead of null, for sometimes there is hashtag null, TODO, drop or keep?
                 hashTags += ":";
             }
 
@@ -40,8 +64,8 @@ public class TwitterParser {
             e.printStackTrace();
         }
 
-        // empty instead of null when no language or hashtasg is defined, for sometimes there is hashtag null
-        return "lang:,hashtags:";
+        // null when no language or hashtasg is defined
+        return null;
     }
 
 }

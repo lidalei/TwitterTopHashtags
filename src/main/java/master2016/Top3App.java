@@ -59,7 +59,7 @@ public class Top3App {
 
         String kafkaBrokerURL = "localhost:9092";
         String topologyName = "Topology";
-        String outputFolder = ":/";
+        String outputFolder = "/Users/Sophie/";
 
 
         final String groupID = "YesWeCan";
@@ -68,7 +68,7 @@ public class Top3App {
         TopologyBuilder topologyBuilder = new TopologyBuilder();
 
         // TODO, delete after finishing development
-        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
+        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, false));
 
 //        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
         topologyBuilder.setBolt("Top3Bolt", new TwitterTopKBolt(langTokenDict, outputFolder, 3))
@@ -78,7 +78,7 @@ public class Top3App {
         LocalCluster locClu = new LocalCluster();
         locClu.submitTopology(topologyName, new Config(), topologyBuilder.createTopology());
 
-        Utils.sleep(50000);
+        Utils.sleep(100000);
 
         locClu.killTopology(topologyName);
         locClu.shutdown();

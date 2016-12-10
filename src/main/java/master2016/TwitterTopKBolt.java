@@ -6,6 +6,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,9 +70,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
         // deal with multiple hashtags
         for (String hashtag : hashtags.split(":")) {
-
-            System.out.println("language " + language);
-            System.out.println("hashtag " + hashtag);
+//            System.out.println("language " + language);
+//            System.out.println("hashtag " + hashtag);
 
             // starting or ending window hashtag
             if(hashtag.equals(langTokenDict.get(language))) {
