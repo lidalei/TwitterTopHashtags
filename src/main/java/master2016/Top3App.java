@@ -3,6 +3,7 @@ package master2016;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.utils.Utils;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class Top3App {
         HashMap<String, String> langTokenDict = new HashMap<>(langTokenList.length * 2);
         for(String e : langTokenList) {
             String[] langToken = e.split(":");
-            langTokenDict.put(langToken[0], langToken[1]);
+            langTokenDict.put(langToken[0], langToken[1].toLowerCase());
         }
 
         System.out.println("langList: " + langTokenDict.toString());
@@ -70,13 +71,14 @@ public class Top3App {
         topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
 
 //        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
-        topologyBuilder.setBolt("Top3Bolt", new TwitterTop3Bolt(langTokenDict, outputFolder)).localOrShuffleGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME);
+        topologyBuilder.setBolt("Top3Bolt", new TwitterTopKBolt(langTokenDict, outputFolder, 3))
+                .fieldsGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME, new Fields(KafkaSpout.LANGUAGE_NAME));
 
         // local model
         LocalCluster locClu = new LocalCluster();
         locClu.submitTopology(topologyName, new Config(), topologyBuilder.createTopology());
 
-        Utils.sleep(10000);
+        Utils.sleep(50000);
 
         locClu.killTopology(topologyName);
         locClu.shutdown();

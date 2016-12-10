@@ -108,6 +108,14 @@ public class KafkaSpout extends BaseRichSpout {
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
+             val = parseLangHashtag("lang:en,hashtags:machine learning");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:abc");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
              val = parseLangHashtag("lang:en,hashtags:abc");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
@@ -120,17 +128,25 @@ public class KafkaSpout extends BaseRichSpout {
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
-             val = parseLangHashtag("lang:en,hashtags:hahaha");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // end es hashtag
-             val = parseLangHashtag("lang:en,hashtags:machine learning");
+             val = parseLangHashtag("lang:en,hashtags:a dog");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
              // start es hashtag
              val = parseLangHashtag("lang:es,hashtags:madrid");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:hahaha");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:a dog");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // end en hashtag
+             val = parseLangHashtag("lang:en,hashtags:machine learning");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 

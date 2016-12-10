@@ -2,47 +2,50 @@ package master2016;
 
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
-import org.apache.storm.topology.BoltDeclarer;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by Sophie on 11/24/16.
  */
-public class TwitterTop3Bolt extends BaseRichBolt {
+public class TwitterTopKBolt extends BaseRichBolt {
 
     private HashMap<String, String> langTokenDict = null;
-
     private String outputFolder = null;
+    private int k = 3;
 
-    // <lang, hashtags>
-    private HashMap<String, LinkedList<String>> top3Hashtags = null;
-
+    // an object used to store and output top k hashtags
+    private HashMap<String, StreamTopK> streamTopKCounters = null;
     // based on the routing strategy, each language will have a counter, <lang, counter>
     private HashMap<String, Integer> condWindowsCounters = null;
-
     // flags of condWindows, true represents within a conditional window, false to start a new windows
     private HashMap<String, Boolean> condWindowsFlags = null;
 
-    public TwitterTop3Bolt(HashMap<String, String> langTokenDict, String outputFolder) {
+    public TwitterTopKBolt(HashMap<String, String> langTokenDict, String outputFolder, int k) {
         this.langTokenDict = langTokenDict;
         this.outputFolder = outputFolder;
+        if(k <= 0) {
+            this.k = 3;
+        }
+        else {
+            this.k = k;
+        }
     }
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-        // initialize top3Hashtags and condWindowsCounters
-        top3Hashtags = new HashMap<>(langTokenDict.size() * 2);
+        // initialize condWindowsCounters and condWindowsFlags
+        streamTopKCounters = new HashMap<>(langTokenDict.size() * 2);
         condWindowsCounters = new HashMap<>(langTokenDict.size() * 2);
         condWindowsFlags = new HashMap<>(langTokenDict.size() * 2);
 
         for(String lang : langTokenDict.keySet()) {
-            top3Hashtags.put(lang, new LinkedList<String>());
+            streamTopKCounters.put(lang, new StreamTopK(k));
             condWindowsCounters.put(lang, 0);
             condWindowsFlags.put(lang, false);
         }
@@ -78,18 +81,21 @@ public class TwitterTop3Bolt extends BaseRichBolt {
                     condWindowsCounters.put(language, condWindowsCounters.get(language) + 1);
                 }
                 else {
-                    // true, end of a window, output results, TODO
+                    // true, end of a window, output results, TODO, less than k tags
                     condWindowsFlags.put(language, false);
 
                     System.out.println("Counter: " + condWindowsCounters.get(language));
-                    System.out.println("hashtags: " + top3Hashtags.get(language).toString());
+                    System.out.println("hashtags: ");
+                    for (Entry<String, Integer> o : streamTopKCounters.get(language).topk()) {
+                        System.out.println(o.toString());
+                    }
 
-                    top3Hashtags.get(language).clear();
+                    streamTopKCounters.get(language).clear();
                 }
             }
             else {
                 // to compute top3
-                top3Hashtags.get(language).add(hashtag);
+                streamTopKCounters.get(language).add(hashtag, 1);
             }
         }
     }
