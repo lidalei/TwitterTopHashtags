@@ -4,6 +4,7 @@ package master2016.twitterApp;
 import com.google.gson.*;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by Sophie on 11/18/16.
@@ -11,15 +12,13 @@ import java.io.*;
 public class TwitterParser {
 
     // TODO, change after finishing development
-    private Writer writer = null;
+    private BufferedWriter writer = null;
 
     // TODO, change after finishing development
     public TwitterParser() {
         try{
-            writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("/Users/Sophie/sampleTwitters.txt"), "utf-8"));
+            writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("/Users/Sophie/sampleTwitters.txt"), StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

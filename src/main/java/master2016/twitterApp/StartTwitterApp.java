@@ -7,6 +7,7 @@ package master2016.twitterApp;
 
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -30,21 +31,21 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 public class StartTwitterApp {
 
-    // TODO, change after finishing development
-    private Writer writer = null;
-
     public final static String TOPIC_NAME = "DataManagement";
 
+    private BufferedReader tweetsReader = null;
+
     // TODO, change after finishing development
+    private BufferedWriter writer = null;
+
+
     public StartTwitterApp() {
+        // TODO, change after finishing development
         try{
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Sophie/langhashtags.txt"), "utf-8"));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Sophie/langhashtags.txt"), StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
-
     }
 
     private void getTweetsAndStoreToKafka(HashMap<String, String> twitterAPIParams) {
@@ -64,9 +65,70 @@ public class StartTwitterApp {
 
         System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
 
+        TwitterParser twitterParser = new TwitterParser();
+
         if(twitterAPIParams.get("mode").equals("1")) { // read from file
-            // each line is a twitter
-            // TODO
+
+            try {
+                // To deal with FileNotFoundException
+                tweetsReader = new BufferedReader(new InputStreamReader(new FileInputStream(twitterAPIParams.get("fileName")), StandardCharsets.UTF_8));
+
+                // each line is a twitter
+                String tweet = null;
+
+//                int i = 0;
+
+                // To deal with IOException, TODO, readLine not found
+                while((tweet = tweetsReader.readLine()) != null) {
+                    // send twitter to kafka
+                    ProducerRecord<String, String> twitterRecord = null;
+
+                    String languageHashTag = twitterParser.parse(tweet);
+
+//                    System.out.println("i: " + i++);
+
+                    // this twitter was deleted
+                    if(languageHashTag == null) {
+                        continue;
+                    }
+
+                    // TODO, change after finishing development
+                    try{
+                        writer.write(languageHashTag);
+                        writer.newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
+                    System.out.println(twitterRecord);
+
+                    producer.send(twitterRecord);
+                }
+
+                tweetsReader.close();
+
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+
+                System.out.println("Create BufferedReader from file error. Exception: " + e.getMessage());
+
+                // fatal error, terminate program
+                return;
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+
+                System.out.println("Read tweets from file error. Exception: " + e.getMessage());
+
+                // fatal error, terminate program
+                return;
+            }
+            finally {
+                // stop store twitters in kafka
+                producer.close();
+            }
         }
         else { // get twitters from twitter
 
@@ -87,12 +149,10 @@ public class StartTwitterApp {
             // Establish a connection
             client.connect();
 
-            TwitterParser twitterParser = new TwitterParser();
-
-            // send twitter to kafka, TODO, change 10000 to infinity
-            for (int i = 0; i < 10000; ++i) {
-                ProducerRecord<String, String> twitter = null;
-                try {
+            try {
+                // send twitter to kafka, TODO, change 10000 to infinity
+                for (int i = 0; i < 10000; ++i) {
+                    ProducerRecord<String, String> twitterRecord = null;
                     String languageHashTag = twitterParser.parse(twitterQueue.take());
 
                     // this twitter was deleted
@@ -103,24 +163,27 @@ public class StartTwitterApp {
                     // TODO, change after finishing development
                     try{
                         writer.write(languageHashTag);
-                    } catch (IOException e) {
+                        writer.newLine();
+                    }
+                    catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    twitter = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
-                    System.out.println(twitter);
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
+                    System.out.println(twitterRecord);
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    producer.send(twitterRecord);
                 }
-
-                producer.send(twitter);
             }
-
-            // stop store twitters in kafka
-            producer.close();
-            // disconnect twitter
-            client.stop();
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            finally {
+                // stop store twitters in kafka
+                producer.close();
+                // disconnect twitter
+                client.stop();
+            }
         }
     }
 
