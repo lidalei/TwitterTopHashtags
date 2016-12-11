@@ -7,7 +7,12 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,6 +24,9 @@ public class TwitterTopKBolt extends BaseRichBolt {
     private HashMap<String, String> langTokenDict = null;
     private String outputFolder = null;
     private int k = 3;
+
+    private HashMap<String, BufferedWriter> resWriters = null;
+    private final String resFileNameSuffix = "_21.log";
 
     // an object used to store and output top k hashtags
     private HashMap<String, StreamTopK> streamTopKCounters = null;
@@ -40,15 +48,35 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        int initialCapacity = langTokenDict.size() * 2;
+
         // initialize condWindowsCounters and condWindowsFlags
-        streamTopKCounters = new HashMap<>(langTokenDict.size() * 2);
-        condWindowsCounters = new HashMap<>(langTokenDict.size() * 2);
-        condWindowsFlags = new HashMap<>(langTokenDict.size() * 2);
+        streamTopKCounters = new HashMap<>(initialCapacity);
+        condWindowsCounters = new HashMap<>(initialCapacity);
+        condWindowsFlags = new HashMap<>(initialCapacity);
 
         for(String lang : langTokenDict.keySet()) {
             streamTopKCounters.put(lang, new StreamTopK(k));
             condWindowsCounters.put(lang, 0);
             condWindowsFlags.put(lang, false);
+        }
+
+        // initialize result writers
+        resWriters = new HashMap<>(initialCapacity);
+
+        try{
+            // create several files
+            for(String lang : langTokenDict.keySet()) {
+                Path resFilePath = FileSystems.getDefault().getPath(outputFolder, lang + resFileNameSuffix);
+                resWriters.put(lang, Files.newBufferedWriter(resFilePath, StandardCharsets.UTF_8));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
         }
     }
 
@@ -79,19 +107,48 @@ public class TwitterTopKBolt extends BaseRichBolt {
                 if(!condWindowsFlags.get(language)) {
                     condWindowsFlags.put(language, true);
                     condWindowsCounters.put(language, condWindowsCounters.get(language) + 1);
+
+                    // clear the window
+                    streamTopKCounters.get(language).clear();
                 }
                 else {
-                    // true, end of a window, output results, TODO, less than k tags
+                    // true, end of a window, output results
                     condWindowsFlags.put(language, false);
 
+                    List<Entry<String, Integer>> topKHashtags = streamTopKCounters.get(language).topk();
+
+                    // TODO, comment after finishing development
                     System.out.println("Counter: " + condWindowsCounters.get(language));
                     System.out.println("hashtags: ");
-                    
-                    for (Entry<String, Integer> o : streamTopKCounters.get(language).topk()) {
+
+
+                    StringBuilder strBuilder = new StringBuilder(50);
+                    strBuilder.append(condWindowsCounters.get(language)).append("," + language);
+
+                    for (Entry<String, Integer> o : topKHashtags) {
+                        // TODO, comment after finishing development
                         System.out.println(o.toString());
+
+                        strBuilder.append("," + o.getKey() + "," + o.getValue());
                     }
 
-                    streamTopKCounters.get(language).clear();
+                    int paddingSize = k - topKHashtags.size();
+
+                    if(paddingSize > 0) {
+                        for(int i = 0; i < paddingSize; ++i) {
+                            strBuilder.append(",null,0");
+                        }
+                    }
+
+                    try {
+                        resWriters.get(language).write(strBuilder.toString());
+                        resWriters.get(language).newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+
+                        System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
+                    }
+
                 }
             }
             else {
@@ -106,5 +163,15 @@ public class TwitterTopKBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         // there is no bolt to output to
+
+        // close all file resources
+        try {
+            for(BufferedWriter resWriter : resWriters.values()) {
+                resWriter.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
