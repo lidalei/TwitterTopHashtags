@@ -73,6 +73,11 @@ public class StreamTopK {
         Collections.sort(countersAsList, new Comparator<Entry<String, Integer>>() {
             @Override
             public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+                // if the values are the same, sort by key in ascending order
+                if(o1.getValue() == o2.getValue()) {
+                    return o1.getKey().compareTo(o2.getKey());
+                }
+                // otherwise sort by values in descending order
                 return o2.getValue().compareTo(o1.getValue());
             }
         });

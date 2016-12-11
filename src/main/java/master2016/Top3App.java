@@ -54,8 +54,8 @@ public class Top3App {
 
         // for debug use only. // TODO, change to previous piece of code
         HashMap<String, String> langTokenDict = new HashMap<>(4);
-        langTokenDict.put("en", "machine learning");
-        langTokenDict.put("es", "madrid");
+        langTokenDict.put("en", "house");
+        langTokenDict.put("es", "ordenador");
 
         String kafkaBrokerURL = "localhost:9092";
         String topologyName = "Topology";
@@ -68,7 +68,7 @@ public class Top3App {
         TopologyBuilder topologyBuilder = new TopologyBuilder();
 
         // TODO, delete after finishing development
-        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, false));
+        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
 
 //        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
         topologyBuilder.setBolt("Top3Bolt", new TwitterTopKBolt(langTokenDict, outputFolder, 3))

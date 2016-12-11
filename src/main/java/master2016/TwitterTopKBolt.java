@@ -86,6 +86,7 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
                     System.out.println("Counter: " + condWindowsCounters.get(language));
                     System.out.println("hashtags: ");
+                    
                     for (Entry<String, Integer> o : streamTopKCounters.get(language).topk()) {
                         System.out.println(o.toString());
                     }
@@ -94,8 +95,10 @@ public class TwitterTopKBolt extends BaseRichBolt {
                 }
             }
             else {
-                // to compute top3
-                streamTopKCounters.get(language).add(hashtag, 1);
+                // only add this hahstag when the window is active
+                if(condWindowsFlags.get(language)) {
+                    streamTopKCounters.get(language).add(hashtag, 1);
+                }
             }
         }
     }

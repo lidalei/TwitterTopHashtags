@@ -99,75 +99,84 @@ public class KafkaSpout extends BaseRichSpout {
         // TODO, delete after finishing development
          if(testMode) {
 
-             // start es hashtag
-             Values val = parseLangHashtag("lang:en,hashtags:machine learning");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:machine learning");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:machine learning");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:abc");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:abc");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:is");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:a dog");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:a dog");
+             Values val = parseLangHashtag("lang:es,hashtags:casa");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
              // start es hashtag
-             val = parseLangHashtag("lang:es,hashtags:madrid");
+             val = parseLangHashtag("lang:es,hashtags:ordenador");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
-             val = parseLangHashtag("lang:en,hashtags:hahaha");
+             val = parseLangHashtag("lang:es,hashtags:coche");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
-             val = parseLangHashtag("lang:en,hashtags:a dog");
+             val = parseLangHashtag("lang:en,hashtags:football");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // start en hashtag
+             val = parseLangHashtag("lang:en,hashtags:house");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:casa");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:casa");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:football");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:messi");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:football");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:coche");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
              // end en hashtag
-             val = parseLangHashtag("lang:en,hashtags:machine learning");
+             val = parseLangHashtag("lang:es,hashtags:casa");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
-             val = parseLangHashtag("lang:es,hashtags:is");
+             val = parseLangHashtag("lang:es,hashtags:libro");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
-             val = parseLangHashtag("lang:es,hashtags:a");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:beautiful");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:city");
+             val = parseLangHashtag("lang:en,hashtags:messi");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
              // end es hashtag
-             val = parseLangHashtag("lang:es,hashtags:madrid");
+             val = parseLangHashtag("lang:en,hashtags:house");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:work");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             // end es hashtag
+             val = parseLangHashtag("lang:es,hashtags:ordenador");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:en,hashtags:what");
+             collector.emit(TWITTER_STREAM_NAME, val);
+             System.out.println("Emit: " + val.toString());
+
+             val = parseLangHashtag("lang:es,hashtags:concierto");
              collector.emit(TWITTER_STREAM_NAME, val);
              System.out.println("Emit: " + val.toString());
 
