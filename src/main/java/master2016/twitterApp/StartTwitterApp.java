@@ -41,49 +41,41 @@ public class StartTwitterApp {
 
     private final static JsonParser jsonParser = new JsonParser();
 
-    // TODO, change after finishing development
-    private BufferedWriter writer = null;
 
+    public StartTwitterApp() {}
 
-    public StartTwitterApp() {
-        // TODO, change after finishing development
-        try{
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/Sophie/langhashtags.txt"), StandardCharsets.UTF_8));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // TODO, switch to this function from TweetParser
+    // switch to this function from TweetParser
     private String tweetParse(String jsonString) {
         // System.out.println(jsonString);
 
         JsonElement jsonElement = jsonParser.parse(jsonString);
-
         JsonObject jsonObject = jsonElement.getAsJsonObject();
 
         // the tweet was deleted if there is no language element
 //            System.out.println(jsonObject.get("lang"));
-        if(jsonObject.get("lang") == null) {
+        JsonElement langJsonObject = jsonObject.get("lang");
+
+        if(langJsonObject == null) {
             return null;
         }
 
-        String language = "lang:" + jsonObject.get("lang").getAsString();
+        String language = langJsonObject.getAsString();
+
+        String hashTags = ",";
         JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
 
-        String hashTags = ",hashtags";
         if(hashTagArr.size() >= 1) {
             for(JsonElement e : hashTagArr) {
                 // transform hashtag to lower case format
-                hashTags += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
+                hashTags += e.getAsJsonObject().get("text").getAsString().toLowerCase() + ":";
             }
 
-            return  language + hashTags;
+            String languageHashTags = language + hashTags;
+            // remove the last : before return
+            return  languageHashTags.substring(0, languageHashTags.length() - 1);
         }
         else {
-            // empty instead of null, for sometimes there is hashtag null
-            // hashTags += ":";
-            // directly drop the tweet
+            // there is no hashtag, directly drop the tweet
             return null;
         }
     }
@@ -115,28 +107,21 @@ public class StartTwitterApp {
                 // each line is a twitter
                 String tweet = null;
 
-                // To deal with IOException, TODO, readLine not found
+                // To deal with IOException
                 while((tweet = tweetsReader.readLine()) != null) {
                     // send twitter to kafka
                     ProducerRecord<String, String> twitterRecord = null;
 
-                    String languageHashTag = tweetParse(tweet);
+                    String languageHashtags = tweetParse(tweet);
 
-                    // this twitter was deleted
-                    if(languageHashTag == null) {
+                    // this tweet was deleted or has no hashtag
+                    if(languageHashtags == null) {
                         continue;
                     }
 
-                    // TODO, change after finishing development
-                    try{
-                        writer.write(languageHashTag);
-                        writer.newLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    String key = languageHashTag.split(",", 2)[0].split(":")[1];
-                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, key, languageHashTag);
+                    String[] langHashtagsArr = languageHashtags.split(",");
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, langHashtagsArr[0], langHashtagsArr[1]);
+                    // TODO, comment after finishing development
                     System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);
@@ -189,25 +174,16 @@ public class StartTwitterApp {
                 // send twitter to kafka forever
                 for (;;) {
                     ProducerRecord<String, String> twitterRecord = null;
-                    String languageHashTag = tweetParse(twitterQueue.take());
+                    String languageHashtags = tweetParse(twitterQueue.take());
 
-                    // this twitter was deleted
-                    if(languageHashTag == null) {
+                    // this tweet was deleted or has no hashtag
+                    if(languageHashtags == null) {
                         continue;
                     }
 
-                    // TODO, change after finishing development
-                    try{
-                        writer.write(languageHashTag);
-                        writer.newLine();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    // TODO, change (move) twitter parser here and excluding the "lang" and "hashtags:" which are useless
-                    String key = languageHashTag.split(",", 2)[0].split(":")[1];
-                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, key, languageHashTag);
+                    // key is the language, value is the hashtags split by :
+                    String[] langHashtagsArr = languageHashtags.split(",");
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, langHashtagsArr[0], langHashtagsArr[1]);
                     System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);
@@ -235,6 +211,7 @@ public class StartTwitterApp {
             return;
         }
 
+        // TODO, comment after finishing development
         System.out.println("Parameters:");
 
         HashMap<String, String> twitterAPIParams = new HashMap<>(14);
@@ -247,6 +224,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("mode", Integer.toString(mode));
+        // TODO, comment after finishing development
         System.out.println("mode: " + mode);
 
         // parse Twitter API key
@@ -256,6 +234,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("twitterAPIKey", twitterAPIKey);
+        // TODO, comment after finishing development
         System.out.println("Twitter API key: " + twitterAPIKey);
 
         // parse secret associated with the Twitter app consumer
@@ -265,6 +244,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("APISecret", APISecret);
+        // TODO, comment after finishing development
         System.out.println("Twitter API Secret key: " + APISecret);
 
         // parse access token associated with the Twitter app
@@ -274,6 +254,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("tokenValue", tokenValue);
+        // TODO, comment after finishing development
         System.out.println("Access token: " + tokenValue);
 
         // parse access token secret
@@ -283,6 +264,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("tokenSecret", tokenSecret);
+        // TODO, comment after finishing development
         System.out.println("Access token secret: " + tokenSecret);
 
         // parse Kafka Broker URL: String in the format IP:port corresponding with the Kafka Broker
@@ -293,6 +275,7 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("kafkaBrokerURL", kafkaBrokerURL);
+        // TODO, comment after finishing development
         System.out.println("Kafka Broker URL: " + kafkaBrokerURL);
 
         // parse Filename, path to the file with the tweets
@@ -300,12 +283,11 @@ public class StartTwitterApp {
         String fileName = args[6];
 
         twitterAPIParams.put("fileName", fileName);
+        // TODO, comment after finishing development
         System.out.println("File name: " + fileName);
 
         StartTwitterApp selfInstance = new StartTwitterApp();
         selfInstance.getTweetsAndStoreToKafka(twitterAPIParams);
 
     }
-
-
 }
