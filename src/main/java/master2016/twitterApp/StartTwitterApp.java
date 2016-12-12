@@ -151,8 +151,8 @@ public class StartTwitterApp {
             client.connect();
 
             try {
-                // send twitter to kafka, TODO, change 10000 to infinity
-                for (int i = 0; i < 10000; ++i) {
+                // send twitter to kafka forever
+                for (;;) {
                     ProducerRecord<String, String> twitterRecord = null;
                     String languageHashTag = tweetParser.parse(twitterQueue.take());
 
@@ -172,7 +172,6 @@ public class StartTwitterApp {
 
                     // TODO, change (move) twitter parser here and excluding the "lang" and "hashtags:" which are useless
                     String key = languageHashTag.split(",", 2)[0].split(":")[1];
-                    System.out.println("key: " + key);
                     twitterRecord = new ProducerRecord<>(TOPIC_NAME, key, languageHashTag);
                     System.out.println(twitterRecord);
 

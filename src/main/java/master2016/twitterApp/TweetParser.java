@@ -26,45 +26,43 @@ public class TweetParser {
 
     public String parse(String jsonString) {
         try{
-
             // TODO, change after finishing development
             writer.write(jsonString);
-//            System.out.println(jsonString);
-
-            JsonElement jsonElement = new JsonParser().parse(jsonString);
-
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-
-            // the twitter was deleted if there is no language element, TODO
-//            System.out.println(jsonObject.get("lang"));
-            if(jsonObject.get("lang") == null) {
-                return null;
-            }
-
-            String language = "lang:" + jsonObject.get("lang").getAsString();
-            JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
-
-            String hashTags = ",hashtags";
-            if(hashTagArr.size() >= 1) {
-                for(JsonElement e : hashTagArr) {
-                    // transform hashtag to lower case format
-                    hashTags += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
-                }
-            }
-            else {
-                // empty instead of null, for sometimes there is hashtag null, TODO, drop or keep?
-                hashTags += ":";
-            }
-
-            return  language + hashTags;
-
         }
         catch(Exception e) { // catch exception when language or hashtags does not exist
             e.printStackTrace();
         }
 
-        // null when no language or hashtasg is defined
-        return null;
+        // System.out.println(jsonString);
+
+        JsonElement jsonElement = new JsonParser().parse(jsonString);
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+        // the tweet was deleted if there is no language element
+//            System.out.println(jsonObject.get("lang"));
+        if(jsonObject.get("lang") == null) {
+            return null;
+        }
+
+        String language = "lang:" + jsonObject.get("lang").getAsString();
+        JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
+
+        String hashTags = ",hashtags";
+        if(hashTagArr.size() >= 1) {
+            for(JsonElement e : hashTagArr) {
+                // transform hashtag to lower case format
+                hashTags += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
+            }
+
+            return  language + hashTags;
+        }
+        else {
+            // empty instead of null, for sometimes there is hashtag null
+            // hashTags += ":";
+            // directly drop the tweet
+            return null;
+        }
     }
 
 }
