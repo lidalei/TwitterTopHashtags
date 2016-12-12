@@ -67,10 +67,12 @@ public class Top3App {
         // build topology
         TopologyBuilder topologyBuilder = new TopologyBuilder();
 
-        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
+        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(langTokenDict, kafkaBrokerURL, groupID));
         topologyBuilder.setBolt("Top3Bolt", new TwitterTopKBolt(langTokenDict, outputFolder, 3))
                 .fieldsGrouping("KafkaSpout", KafkaSpout.TWITTER_STREAM_NAME, new Fields(KafkaSpout.LANGUAGE_NAME));
 
+
+        // TODO, test in the cluster
         // local model
         LocalCluster locClu = new LocalCluster();
         locClu.submitTopology(topologyName, new Config(), topologyBuilder.createTopology());

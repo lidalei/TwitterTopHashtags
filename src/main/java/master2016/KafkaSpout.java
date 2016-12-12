@@ -12,10 +12,7 @@ import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by Sophie on 11/24/16.
@@ -30,12 +27,14 @@ public class KafkaSpout extends BaseRichSpout {
 
     KafkaConsumer<String, String> consumer = null;
 
+    private HashMap<String, String> langTokenDict = null;
     // separated by ,
     private String kafkaBrokerList = null;
 
     private String groupID = null;
 
-    public KafkaSpout(String kafkaBrokerList, String groupID) {
+    public KafkaSpout(HashMap<String, String> langTokenDict, String kafkaBrokerList, String groupID) {
+        this.langTokenDict = langTokenDict;
         this.kafkaBrokerList = kafkaBrokerList;
         this.groupID = groupID;
     }
@@ -61,11 +60,16 @@ public class KafkaSpout extends BaseRichSpout {
 
         ConsumerRecords<String, String> records = consumer.poll(100);
         for (ConsumerRecord<String, String> record : records) {
-            Values val = new Values(record.key(), record.value());
-            collector.emit(TWITTER_STREAM_NAME, val);
 
-            // TODO, comment
-            System.out.println("Emit: " + val.toString());
+            String lang = record.key();
+            // only emit a tuple when the language is useful
+            if(langTokenDict.containsKey(lang)) {
+                Values val = new Values(lang, record.value());
+                collector.emit(TWITTER_STREAM_NAME, val);
+
+                // TODO, comment
+                System.out.println("Emit: " + val.toString());
+            }
         }
 
     }
