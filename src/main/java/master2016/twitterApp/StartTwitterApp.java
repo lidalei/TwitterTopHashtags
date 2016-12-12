@@ -106,8 +106,6 @@ public class StartTwitterApp {
 
         System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
 
-        TweetParser tweetParser = new TweetParser();
-
         if(twitterAPIParams.get("mode").equals("1")) { // read from file
 
             try {
@@ -122,7 +120,7 @@ public class StartTwitterApp {
                     // send twitter to kafka
                     ProducerRecord<String, String> twitterRecord = null;
 
-                    String languageHashTag = tweetParser.parse(tweet);
+                    String languageHashTag = tweetParse(tweet);
 
                     // this twitter was deleted
                     if(languageHashTag == null) {
@@ -191,7 +189,7 @@ public class StartTwitterApp {
                 // send twitter to kafka forever
                 for (;;) {
                     ProducerRecord<String, String> twitterRecord = null;
-                    String languageHashTag = tweetParser.parse(twitterQueue.take());
+                    String languageHashTag = tweetParse(twitterQueue.take());
 
                     // this twitter was deleted
                     if(languageHashTag == null) {
