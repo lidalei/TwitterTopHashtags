@@ -43,26 +43,28 @@ public class TweetParser {
 
         // the tweet was deleted if there is no language element
 //            System.out.println(jsonObject.get("lang"));
-        if(jsonObject.get("lang") == null) {
+        JsonElement langJsonObject = jsonObject.get("lang");
+
+        if(langJsonObject == null) {
             return null;
         }
 
-        String language = "lang:" + jsonObject.get("lang").getAsString();
+        String language = langJsonObject.getAsString();
+
+        String hashTags = ",";
         JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
 
-        String hashTags = ",hashtags";
         if(hashTagArr.size() >= 1) {
             for(JsonElement e : hashTagArr) {
                 // transform hashtag to lower case format
-                hashTags += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
+                hashTags += e.getAsJsonObject().get("text").getAsString().toLowerCase() + ":";
             }
 
-            return  language + hashTags;
+            String languageHashTags = language + hashTags;
+            return  languageHashTags.substring(0, languageHashTags.length() - 1);
         }
         else {
-            // empty instead of null, for sometimes there is hashtag null
-            // hashTags += ":";
-            // directly drop the tweet
+            // there is no hashtag, directly drop the tweet
             return null;
         }
     }
