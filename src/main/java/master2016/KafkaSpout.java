@@ -22,9 +22,6 @@ import java.util.Properties;
  */
 public class KafkaSpout extends BaseRichSpout {
 
-    // test the code, TODO, delete after finishing development
-    private boolean testMode = false;
-
     public final static String LANGUAGE_NAME = "lang";
     public final static String HASHTAGS_NAME = "hashtag";
     public final static String TWITTER_STREAM_NAME = "twitter";
@@ -43,13 +40,6 @@ public class KafkaSpout extends BaseRichSpout {
         this.groupID = groupID;
     }
 
-    // TODO, delete after finishing development
-    public KafkaSpout(String kafkaBrokerList, String groupID, boolean testMode) {
-        this.kafkaBrokerList = kafkaBrokerList;
-        this.groupID = groupID;
-        this.testMode = testMode;
-    }
-
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
         this.collector = spoutOutputCollector;
@@ -66,130 +56,12 @@ public class KafkaSpout extends BaseRichSpout {
         consumer.subscribe(Arrays.asList(StartTwitterApp.TOPIC_NAME));
     }
 
-    private Values parseLangHashtag(String langHashtag) {
-        String[] langHashtagList = langHashtag.split(",");
-        String[] languagePair = langHashtagList[0].split(":");
-
-        // when language is empty, set it as "null"
-        String language = null;
-        if(languagePair.length >= 2) {
-            language = languagePair[1];
-        }
-        else {
-            language = "null";
-        }
-
-        // multiple hashtags, return all hashtags split by :
-        String hashtagsPair = langHashtagList[1];
-
-        // when hashtags are empty, set it as null
-        String hashtags = null;
-
-        int firstOccuIndex = hashtagsPair.indexOf(":");
-        // hashtags are not empty
-        if(firstOccuIndex != hashtagsPair.length() - 1) {
-            hashtags = hashtagsPair.substring(firstOccuIndex + 1);
-        }
-
-        return new Values(language, hashtags);
-    }
-
     @Override
     public void nextTuple() {
 
-        // TODO, delete after finishing development
-         if(testMode) {
-
-             Values val = parseLangHashtag("lang:es,hashtags:casa");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // start es hashtag
-             val = parseLangHashtag("lang:es,hashtags:ordenador");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:coche");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:football");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // start en hashtag
-             val = parseLangHashtag("lang:en,hashtags:house");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:casa");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:casa");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:football");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:messi");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:football");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:coche");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // end en hashtag
-             val = parseLangHashtag("lang:es,hashtags:casa");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:libro");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:messi");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // end es hashtag
-             val = parseLangHashtag("lang:en,hashtags:house");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:work");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             // end es hashtag
-             val = parseLangHashtag("lang:es,hashtags:ordenador");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:en,hashtags:what");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             val = parseLangHashtag("lang:es,hashtags:concierto");
-             collector.emit(TWITTER_STREAM_NAME, val);
-             System.out.println("Emit: " + val.toString());
-
-             return;
-         }
-
-
         ConsumerRecords<String, String> records = consumer.poll(100);
         for (ConsumerRecord<String, String> record : records) {
-//            System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
-
-            Values val = parseLangHashtag(record.value());
+            Values val = new Values(record.key(), record.value());
             collector.emit(TWITTER_STREAM_NAME, val);
 
             // TODO, comment
