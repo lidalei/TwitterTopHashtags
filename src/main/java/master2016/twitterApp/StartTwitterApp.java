@@ -100,7 +100,8 @@ public class StartTwitterApp {
                         e.printStackTrace();
                     }
 
-                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
+                    String key = languageHashTag.split(",", 2)[0].split(":")[1];
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, key, languageHashTag);
                     System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);
@@ -169,7 +170,10 @@ public class StartTwitterApp {
                         e.printStackTrace();
                     }
 
-                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, languageHashTag);
+                    // TODO, change (move) twitter parser here and excluding the "lang" and "hashtags:" which are useless
+                    String key = languageHashTag.split(",", 2)[0].split(":")[1];
+                    System.out.println("key: " + key);
+                    twitterRecord = new ProducerRecord<>(TOPIC_NAME, key, languageHashTag);
                     System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);

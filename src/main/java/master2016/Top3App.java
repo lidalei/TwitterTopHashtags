@@ -68,7 +68,7 @@ public class Top3App {
         TopologyBuilder topologyBuilder = new TopologyBuilder();
 
         // TODO, delete after finishing development
-        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, true));
+        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID, false));
 
 //        topologyBuilder.setSpout("KafkaSpout", new KafkaSpout(kafkaBrokerURL, groupID));
         topologyBuilder.setBolt("Top3Bolt", new TwitterTopKBolt(langTokenDict, outputFolder, 3))
@@ -82,8 +82,6 @@ public class Top3App {
 
         locClu.killTopology(topologyName);
         locClu.shutdown();
-
-
 
     }
 

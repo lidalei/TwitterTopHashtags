@@ -163,7 +163,11 @@ public class TwitterTopKBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         // there is no bolt to output to
+    }
 
+
+    @Override
+    public void cleanup() {
         // close all file resources
         try {
             for(BufferedWriter resWriter : resWriters.values()) {
@@ -172,6 +176,5 @@ public class TwitterTopKBolt extends BaseRichBolt {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

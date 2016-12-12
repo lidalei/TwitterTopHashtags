@@ -62,6 +62,7 @@ public class KafkaSpout extends BaseRichSpout {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         consumer = new KafkaConsumer<>(props);
+        // receive records from topic
         consumer.subscribe(Arrays.asList(StartTwitterApp.TOPIC_NAME));
     }
 
@@ -191,6 +192,7 @@ public class KafkaSpout extends BaseRichSpout {
             Values val = parseLangHashtag(record.value());
             collector.emit(TWITTER_STREAM_NAME, val);
 
+            // TODO, comment
             System.out.println("Emit: " + val.toString());
         }
 
@@ -199,5 +201,10 @@ public class KafkaSpout extends BaseRichSpout {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(TWITTER_STREAM_NAME, new Fields(LANGUAGE_NAME, HASHTAGS_NAME));
+    }
+
+    @Override
+    public void close() {
+        consumer.close();
     }
 }
