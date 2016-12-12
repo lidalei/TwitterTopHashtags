@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class TweetParser {
 
+    private final static JsonParser jsonParser = new JsonParser();
+
     // TODO, change after finishing development
     private BufferedWriter writer = null;
 
@@ -35,7 +37,7 @@ public class TweetParser {
 
         // System.out.println(jsonString);
 
-        JsonElement jsonElement = new JsonParser().parse(jsonString);
+        JsonElement jsonElement = jsonParser.parse(jsonString);
 
         JsonObject jsonObject = jsonElement.getAsJsonObject();
 

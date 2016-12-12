@@ -13,6 +13,10 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -35,6 +39,8 @@ public class StartTwitterApp {
 
     private BufferedReader tweetsReader = null;
 
+    private final static JsonParser jsonParser = new JsonParser();
+
     // TODO, change after finishing development
     private BufferedWriter writer = null;
 
@@ -47,6 +53,41 @@ public class StartTwitterApp {
             e.printStackTrace();
         }
     }
+
+    // TODO, switch to this function from TweetParser
+    private String tweetParse(String jsonString) {
+        // System.out.println(jsonString);
+
+        JsonElement jsonElement = jsonParser.parse(jsonString);
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+        // the tweet was deleted if there is no language element
+//            System.out.println(jsonObject.get("lang"));
+        if(jsonObject.get("lang") == null) {
+            return null;
+        }
+
+        String language = "lang:" + jsonObject.get("lang").getAsString();
+        JsonArray hashTagArr = jsonObject.getAsJsonObject("entities").getAsJsonArray("hashtags");
+
+        String hashTags = ",hashtags";
+        if(hashTagArr.size() >= 1) {
+            for(JsonElement e : hashTagArr) {
+                // transform hashtag to lower case format
+                hashTags += ":" + e.getAsJsonObject().get("text").getAsString().toLowerCase();
+            }
+
+            return  language + hashTags;
+        }
+        else {
+            // empty instead of null, for sometimes there is hashtag null
+            // hashTags += ":";
+            // directly drop the tweet
+            return null;
+        }
+    }
+
 
     private void getTweetsAndStoreToKafka(HashMap<String, String> twitterAPIParams) {
 
@@ -76,16 +117,12 @@ public class StartTwitterApp {
                 // each line is a twitter
                 String tweet = null;
 
-//                int i = 0;
-
                 // To deal with IOException, TODO, readLine not found
                 while((tweet = tweetsReader.readLine()) != null) {
                     // send twitter to kafka
                     ProducerRecord<String, String> twitterRecord = null;
 
                     String languageHashTag = tweetParser.parse(tweet);
-
-//                    System.out.println("i: " + i++);
 
                     // this twitter was deleted
                     if(languageHashTag == null) {
