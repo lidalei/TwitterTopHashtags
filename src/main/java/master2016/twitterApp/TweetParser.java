@@ -9,13 +9,13 @@ import java.nio.charset.StandardCharsets;
 /**
  * Created by Sophie on 11/18/16.
  */
-public class TwitterParser {
+public class TweetParser {
 
     // TODO, change after finishing development
     private BufferedWriter writer = null;
 
     // TODO, change after finishing development
-    public TwitterParser() {
+    public TweetParser() {
         try{
             writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("/Users/Sophie/sampleTwitters.txt"), StandardCharsets.UTF_8));
         } catch (FileNotFoundException e) {
