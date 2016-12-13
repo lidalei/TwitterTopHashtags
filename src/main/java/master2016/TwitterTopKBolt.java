@@ -21,6 +21,9 @@ import java.util.Map.Entry;
  */
 public class TwitterTopKBolt extends BaseRichBolt {
 
+    // TODO, each bolt deals with some languages instead of all languages
+    // TODO, create new files only when necessary
+
     private HashMap<String, String> langTokenDict = null;
     private String outputFolder = null;
     private int k = 3;
