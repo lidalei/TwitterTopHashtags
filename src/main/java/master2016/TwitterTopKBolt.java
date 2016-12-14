@@ -8,11 +8,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,14 +108,10 @@ public class TwitterTopKBolt extends BaseRichBolt {
                     strBuilder.append(condWindowsCounters.get(language)).append("," + language);
 
                     for (Entry<String, Integer> o : topKHashtags) {
-                        // TODO, comment after finishing development
-                        System.out.println(o.toString());
-
                         strBuilder.append("," + o.getKey() + "," + o.getValue());
                     }
 
                     int paddingSize = k - topKHashtags.size();
-
                     if(paddingSize > 0) {
                         for(int i = 0; i < paddingSize; ++i) {
                             strBuilder.append(",null,0");
@@ -129,6 +120,9 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
                     // TODO, emit topk hashtags
                     collector.emit(TWEET_TOPK_HASHTAGS_STREAM, new Values(language, strBuilder.toString()));
+
+                    // TODO, comment after finishing development
+                    System.out.println(language + "," + strBuilder.toString());
 
                 }
             }

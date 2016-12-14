@@ -25,7 +25,7 @@ public class KafkaSpout extends BaseRichSpout {
 
     private SpoutOutputCollector collector = null;
 
-    KafkaConsumer<String, String> consumer = null;
+    private KafkaConsumer<String, String> consumer = null;
 
     private HashMap<String, String> langTokenDict = null;
     // separated by ,

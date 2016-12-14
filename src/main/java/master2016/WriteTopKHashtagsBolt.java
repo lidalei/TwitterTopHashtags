@@ -7,7 +7,6 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

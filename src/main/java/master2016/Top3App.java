@@ -1,15 +1,12 @@
 package master2016;
 
 import org.apache.storm.Config;
-//import org.apache.storm.LocalCluster;
-import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
-import org.apache.storm.utils.Utils;
 
 import java.util.HashMap;
 
@@ -20,7 +17,7 @@ public class Top3App {
 
     public static void main(String[] args) {
 
-        /* cluster mode
+        // cluster mode
         if(args.length < 4) {
             System.out.println("Not enough parameters. There should be four parameters.");
             return;
@@ -55,9 +52,9 @@ public class Top3App {
 
         System.out.println("Output folder: " + outputFolder);
 
-        */
 
-        // for debug use only.
+        /*
+        // local mode
         HashMap<String, String> langTokenDict = new HashMap<>(4);
         langTokenDict.put("en", "house");
         langTokenDict.put("es", "ordenador");
@@ -65,7 +62,7 @@ public class Top3App {
         String kafkaBrokerURL = "localhost:9092";
         String topologyName = "Topology";
         String outputFolder = "/Users/Sophie/YesWeCan/";
-
+        */
 
         // common parts
         final String groupID = "YesWeCan";
@@ -83,19 +80,19 @@ public class Top3App {
         topologyBuilder.setBolt("WriteHashtagsBolt", new WriteTopKHashtagsBolt(langTokenDict, outputFolder))
                 .globalGrouping("Top3Bolt", TwitterTopKBolt.TWEET_TOPK_HASHTAGS_STREAM);
 
+        /*
         // local model
         LocalCluster locClu = new LocalCluster();
         locClu.submitTopology(topologyName, new Config(), topologyBuilder.createTopology());
         Utils.sleep(100000);
         locClu.killTopology(topologyName);
         locClu.shutdown();
+        */
 
-        /*
         // submit topology to the cluster
         Config clusterConfig = new Config();
         // there are three workers in the cluster
         clusterConfig.setNumWorkers(3);
-
 
         StormSubmitter submitter = new StormSubmitter();
         try {
@@ -107,7 +104,6 @@ public class Top3App {
         } catch (AuthorizationException e) {
             e.printStackTrace();
         }
-        */
 
     }
 
