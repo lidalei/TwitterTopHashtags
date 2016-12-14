@@ -4,7 +4,9 @@ import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +23,14 @@ import java.util.Map.Entry;
  */
 public class TwitterTopKBolt extends BaseRichBolt {
 
-    // TODO, each bolt deals with some languages instead of all languages
-    // TODO, create new files only when necessary
+    public final static String TWEET_TOPK_HASHTAGS_STREAM = "tweet_topk_hashtags_stream";
+    public final static String LANGUAGE_NAME = "language";
+    public final static String TWEET_TOPK_HASHTAGS_NAME = "tweet_topk_hashtags";
+
+    private OutputCollector collector = null;
 
     private HashMap<String, String> langTokenDict = null;
-    private String outputFolder = null;
     private int k = 3;
-
-    private HashMap<String, BufferedWriter> resWriters = null;
-    private final String resFileNameSuffix = "_21.log";
 
     // an object used to store and output top k hashtags
     private HashMap<String, StreamTopK> streamTopKCounters = null;
@@ -38,9 +39,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
     // flags of condWindows, true represents within a conditional window, false to start a new windows
     private HashMap<String, Boolean> condWindowsFlags = null;
 
-    public TwitterTopKBolt(HashMap<String, String> langTokenDict, String outputFolder, int k) {
+    public TwitterTopKBolt(HashMap<String, String> langTokenDict, int k) {
         this.langTokenDict = langTokenDict;
-        this.outputFolder = outputFolder;
         if(k <= 0) {
             this.k = 3;
         }
@@ -51,6 +51,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        collector = outputCollector;
+
         int initialCapacity = langTokenDict.size() * 2;
 
         // initialize condWindowsCounters and condWindowsFlags
@@ -62,24 +64,6 @@ public class TwitterTopKBolt extends BaseRichBolt {
             streamTopKCounters.put(lang, new StreamTopK(k));
             condWindowsCounters.put(lang, 0);
             condWindowsFlags.put(lang, false);
-        }
-
-        // initialize result writers
-        resWriters = new HashMap<>(initialCapacity);
-
-        try{
-            // create several files
-            for(String lang : langTokenDict.keySet()) {
-                Path resFilePath = FileSystems.getDefault().getPath(outputFolder, lang + resFileNameSuffix);
-                resWriters.put(lang, Files.newBufferedWriter(resFilePath, StandardCharsets.UTF_8));
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
         }
     }
 
@@ -143,14 +127,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
                         }
                     }
 
-                    try {
-                        resWriters.get(language).write(strBuilder.toString());
-                        resWriters.get(language).newLine();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-
-                        System.out.println("Fatal error: " + e.getMessage() + ". To terminate the program.");
-                    }
+                    // TODO, emit topk hashtags
+                    collector.emit(TWEET_TOPK_HASHTAGS_STREAM, new Values(language, strBuilder.toString()));
 
                 }
             }
@@ -165,19 +143,10 @@ public class TwitterTopKBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        // there is no bolt to output to
+        outputFieldsDeclarer.declareStream(TWEET_TOPK_HASHTAGS_STREAM, new Fields(LANGUAGE_NAME, TWEET_TOPK_HASHTAGS_NAME));
     }
 
 
     @Override
-    public void cleanup() {
-        // close all file resources
-        try {
-            for(BufferedWriter resWriter : resWriters.values()) {
-                resWriter.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    public void cleanup() {}
 }
