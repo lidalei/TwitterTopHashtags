@@ -66,7 +66,7 @@ public class StartTwitterApp {
         if(hashTagArr.size() >= 1) {
             for(JsonElement e : hashTagArr) {
                 // transform hashtag to lower case format
-                hashTags += e.getAsJsonObject().get("text").getAsString().toLowerCase() + ":";
+                hashTags += e.getAsJsonObject().get("text").getAsString() + ":";
             }
 
             String languageHashTags = language + hashTags;

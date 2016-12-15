@@ -68,7 +68,7 @@
                     <programs>
                         <program>
                             <mainClass>master2016.twitterApp.StartTwitterApp</mainClass>
-                            <id>startTwitterApp</id>
+                            <id>startTwitterApp.sh</id>
                             <jvmSettings>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>

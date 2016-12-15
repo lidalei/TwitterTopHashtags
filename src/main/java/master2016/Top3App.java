@@ -32,7 +32,7 @@ public class Top3App {
         HashMap<String, String> langTokenDict = new HashMap<>(langTokenList.length * 2);
         for(String e : langTokenList) {
             String[] langToken = e.split(":");
-            langTokenDict.put(langToken[0], langToken[1].toLowerCase());
+            langTokenDict.put(langToken[0], langToken[1]);
         }
 
         System.out.println("langList: " + langTokenDict.toString());
