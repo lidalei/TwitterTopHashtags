@@ -100,8 +100,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
                     List<Entry<String, Integer>> topKHashtags = streamTopKCounters.get(language).topk();
 
                     // TODO, comment after finishing development
-                    System.out.println("Counter: " + condWindowsCounters.get(language));
-                    System.out.println("hashtags: ");
+//                    System.out.println("Counter: " + condWindowsCounters.get(language));
+//                    System.out.println("hashtags: ");
 
 
                     StringBuilder strBuilder = new StringBuilder(50);
@@ -118,11 +118,11 @@ public class TwitterTopKBolt extends BaseRichBolt {
                         }
                     }
 
-                    // TODO, emit topk hashtags
+                    // emit topk hashtags
                     collector.emit(TWEET_TOPK_HASHTAGS_STREAM, new Values(language, strBuilder.toString()));
 
                     // TODO, comment after finishing development
-                    System.out.println(language + "," + strBuilder.toString());
+//                    System.out.println(language + "," + strBuilder.toString());
 
                 }
             }

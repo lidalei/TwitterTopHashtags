@@ -67,8 +67,8 @@ public class KafkaSpout extends BaseRichSpout {
                 Values val = new Values(lang, record.value());
                 collector.emit(TWITTER_STREAM_NAME, val);
 
-                // TODO, comment
-                System.out.println("Emit: " + val.toString());
+                // TODO, comment after finishing development
+//                System.out.println("Emit: " + val.toString());
             }
         }
 

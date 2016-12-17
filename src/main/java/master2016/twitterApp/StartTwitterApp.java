@@ -95,7 +95,8 @@ public class StartTwitterApp {
 
         Producer<String, String> producer = new KafkaProducer<>(props);
 
-        System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
+        // TODO, comment after finishing development
+//        System.out.println("twitterAPIParas: " + twitterAPIParams.toString());
 
         if(twitterAPIParams.get("mode").equals("1")) { // read from file
 
@@ -121,7 +122,7 @@ public class StartTwitterApp {
                     String[] langHashtagsArr = languageHashtags.split(",");
                     twitterRecord = new ProducerRecord<>(TOPIC_NAME, langHashtagsArr[0], langHashtagsArr[1]);
                     // TODO, comment after finishing development
-                    System.out.println(twitterRecord);
+//                    System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);
                 }
@@ -183,7 +184,8 @@ public class StartTwitterApp {
                     // key is the language, value is the hashtags split by :
                     String[] langHashtagsArr = languageHashtags.split(",");
                     twitterRecord = new ProducerRecord<>(TOPIC_NAME, langHashtagsArr[0], langHashtagsArr[1]);
-                    System.out.println(twitterRecord);
+                    // TODO, comment after finishing development
+//                    System.out.println(twitterRecord);
 
                     producer.send(twitterRecord);
                 }
@@ -210,7 +212,6 @@ public class StartTwitterApp {
             return;
         }
 
-        // TODO, comment after finishing development
         System.out.println("Parameters:");
 
         HashMap<String, String> twitterAPIParams = new HashMap<>(14);
@@ -223,7 +224,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("mode", Integer.toString(mode));
-        // TODO, comment after finishing development
         System.out.println("mode: " + mode);
 
         // parse Twitter API key
@@ -233,7 +233,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("twitterAPIKey", twitterAPIKey);
-        // TODO, comment after finishing development
         System.out.println("Twitter API key: " + twitterAPIKey);
 
         // parse secret associated with the Twitter app consumer
@@ -243,7 +242,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("APISecret", APISecret);
-        // TODO, comment after finishing development
         System.out.println("Twitter API Secret key: " + APISecret);
 
         // parse access token associated with the Twitter app
@@ -253,7 +251,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("tokenValue", tokenValue);
-        // TODO, comment after finishing development
         System.out.println("Access token: " + tokenValue);
 
         // parse access token secret
@@ -263,7 +260,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("tokenSecret", tokenSecret);
-        // TODO, comment after finishing development
         System.out.println("Access token secret: " + tokenSecret);
 
         // parse Kafka Broker URL: String in the format IP:port corresponding with the Kafka Broker
@@ -274,7 +270,6 @@ public class StartTwitterApp {
         }
 
         twitterAPIParams.put("kafkaBrokerURL", kafkaBrokerURL);
-        // TODO, comment after finishing development
         System.out.println("Kafka Broker URL: " + kafkaBrokerURL);
 
         // parse Filename, path to the file with the tweets
@@ -282,7 +277,6 @@ public class StartTwitterApp {
         String fileName = args[6];
 
         twitterAPIParams.put("fileName", fileName);
-        // TODO, comment after finishing development
         System.out.println("File name: " + fileName);
 
         StartTwitterApp selfInstance = new StartTwitterApp();
