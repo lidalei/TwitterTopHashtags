@@ -21,7 +21,7 @@ public class KafkaSpout extends BaseRichSpout {
 
     public final static String LANGUAGE_NAME = "lang";
     public final static String HASHTAGS_NAME = "hashtag";
-    public final static String TWITTER_STREAM_NAME = "twitter";
+    public final static String TWITTER_STREAM_NAME = "tweets";
 
     private SpoutOutputCollector collector = null;
 

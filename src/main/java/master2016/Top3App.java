@@ -91,7 +91,7 @@ public class Top3App {
 
         // submit topology to the cluster
         Config clusterConfig = new Config();
-        // there are three workers in the cluster
+//        // there are three workers in the test cluster. However, we do not know the maximum number of workers in a cluster.
         clusterConfig.setNumWorkers(3);
 
         StormSubmitter submitter = new StormSubmitter();

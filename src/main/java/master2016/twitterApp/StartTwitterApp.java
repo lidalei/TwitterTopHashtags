@@ -65,7 +65,7 @@ public class StartTwitterApp {
 
         if(hashTagArr.size() >= 1) {
             for(JsonElement e : hashTagArr) {
-                // transform hashtag to lower case format
+                // Do not transform hashtag to lower case format
                 hashTags += e.getAsJsonObject().get("text").getAsString() + ":";
             }
 
@@ -151,7 +151,7 @@ public class StartTwitterApp {
                 producer.close();
             }
         }
-        else { // get twitters from twitter
+        else { // get tweets from twitter
 
             BlockingQueue<String> twitterQueue = new LinkedBlockingQueue<>();
 

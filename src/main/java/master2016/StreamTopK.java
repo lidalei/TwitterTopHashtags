@@ -22,7 +22,7 @@ public class StreamTopK {
         }
 
         if(initialCapacity <= 0) {
-            this.counters = new HashMap<>(1000);
+            this.counters = new HashMap<>(10000);
         }
         else {
             this.counters = new HashMap<>(initialCapacity);
@@ -31,7 +31,7 @@ public class StreamTopK {
     }
 
     public StreamTopK(int k) {
-        this(k,1000);
+        this(k,10000);
     }
 
     public StreamTopK() {

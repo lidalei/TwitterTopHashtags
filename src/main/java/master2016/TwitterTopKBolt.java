@@ -18,9 +18,9 @@ import java.util.Map.Entry;
  */
 public class TwitterTopKBolt extends BaseRichBolt {
 
-    public final static String TWEET_TOPK_HASHTAGS_STREAM = "tweet_topk_hashtags_stream";
+    public final static String TWEET_TOPK_HASHTAGS_STREAM = "topk_hashtags_stream";
     public final static String LANGUAGE_NAME = "language";
-    public final static String TWEET_TOPK_HASHTAGS_NAME = "tweet_topk_hashtags";
+    public final static String TWEET_TOPK_HASHTAGS_NAME = "topk_hashtags";
 
     private OutputCollector collector = null;
 
@@ -66,17 +66,17 @@ public class TwitterTopKBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String language = tuple.getStringByField(KafkaSpout.LANGUAGE_NAME);
 
-        // not a language to be computed
-        if(!langTokenDict.containsKey(language)) {
-            return;
-        }
+        // not a language to be computed, filtered out by KafKaSpout
+//        if(!langTokenDict.containsKey(language)) {
+//            return;
+//        }
 
         String hashtags = tuple.getStringByField(KafkaSpout.HASHTAGS_NAME);
 
-        // there is no hashtag
-        if(hashtags == null) {
-            return;
-        }
+        // there is no hashtag, filtered out by StartTwitterApp
+//        if(hashtags == null) {
+//            return;
+//        }
 
         // deal with multiple hashtags
         for (String hashtag : hashtags.split(":")) {
@@ -112,10 +112,8 @@ public class TwitterTopKBolt extends BaseRichBolt {
                     }
 
                     int paddingSize = k - topKHashtags.size();
-                    if(paddingSize > 0) {
-                        for(int i = 0; i < paddingSize; ++i) {
-                            strBuilder.append(",null,0");
-                        }
+                    for(int i = 0; i < paddingSize; ++i) {
+                        strBuilder.append(",null,0");
                     }
 
                     // emit topk hashtags
