@@ -1,5 +1,5 @@
-# masterApp
-Find top 3 frequent hashtags between two occurrences of a special hashtag per language. This project was developed at Technical University of Madrid (UPM) as a course project of Large Scale Data Management.
+# Goal
+Find top k frequent hashtags between two occurrences of a special hashtag per language. This project was developed at Technical University of Madrid (UPM) as a course project of Large Scale Data Management.
 
 # Tools
 Kafka and Storm, hbc-twitter and gson.
